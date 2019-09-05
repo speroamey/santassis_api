@@ -41,7 +41,7 @@ class PasswordResetRequest extends Notification
      */
     public function toMail($notifiable)
     {
-        $url = url('/api/password/find/'.$this->token);
+        $url = url(env('APP_URL').'/reset-password/'.$this->token);
         return (new MailMessage)
             ->line('Vous recevez ce mail parceque nous avons reçu une demande de renouvellement de mot de passe pour votre compte Santasis.')
             ->action('Renouvellez Le Mot De Passe', url($url))

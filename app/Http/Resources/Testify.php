@@ -15,7 +15,8 @@ class Testify extends JsonResource
     public function toArray($request)
     {
         return [
-            'description'=>$this->reference,
+            'id' => $this->id,
+            'description'=>$this->description,
             'user'=>$this->user,
             'authorized'=> $this->authorized,
             'created_at' => $this->created_at,

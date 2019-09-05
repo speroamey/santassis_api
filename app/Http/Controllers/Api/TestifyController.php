@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Validator;
-
+use App\User;
 use App\Testify;
 use App\Http\Resources\Testify as TestifyResource;
 use App\Http\Resources\TestifyCollection;
@@ -24,14 +24,25 @@ class TestifyController extends BaseController
         if (is_null($testify)) {
             return $this->sendError('Testify not found.');
         }
-
+       
         return $this->sendResponse(new TestifyResource( Testify::find($id)), 'Testify retrieved successfully.');
     }
 
     public function index()
     {
+        $user=  $user = User::where('id', Auth::user()->id)->first();
+        if($user['role']=='USER'){
+            return new TestifyCollection(Testify::where('user_id', Auth::user()->id)->get()->paginate(12));
+        }else{
+            return new TestifyCollection( Testify::paginate(12));
+        }
         // return new TestifyCollection( Testify::paginate(3));
-        return $this->sendResponse(new TestifyCollection( Testify::paginate(3)), 'Testifys retrieved successfully.');
+    }
+
+    public function all()
+    {
+        return new TestifyCollection(Testify::where('authorized', 1)->get()->paginate(12));
+        // return new TestifyCollection( Testify::paginate(3));
     }
 
     /**
@@ -71,12 +82,13 @@ class TestifyController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Testify $testify)
+    public function update(Request $request)
     {
         $input = $request->all();
+
         $validator = Validator::make($input, [
             'description' => 'required',
-            'price' => 'required',
+            'authorized'=>'required',
         ]);
 
 
@@ -84,11 +96,13 @@ class TestifyController extends BaseController
             return $this->sendError('Validation Error.', $validator->errors());       
         }
 
-
-        $testify->description = $input['description'];
-        $testify->authorized = $input['authorized'];
-
+        $testify = Testify::find($input['id']);
+        $testify->fill($input);
         $testify->save();
+
+        // $testify->description = $input['description'];
+        // $testify->authorized = $input['authorized'];
+        // $testify->save();
         return $this->sendResponse($testify->toArray(), 'Testify updated successfully.');
     }
 

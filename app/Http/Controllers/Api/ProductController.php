@@ -16,8 +16,8 @@ use App\Http\Controllers\Api\BaseController as BaseController;
 class ProductController extends BaseController
 {
     //
-    public function __construct() {
-        $this->authorized = false;
+    public function __construct($authorized=false) {
+        $this->authorized = $authorized;
     } 
        
     public function show ($id)
@@ -33,7 +33,7 @@ class ProductController extends BaseController
     public function index(Request $request)
     {
         // dd(  Product::latest()->first()->url);
-        return new ProductCollection( Product::paginate(12));
+        return new ProductCollection( Product::where('authorized', 1)->orderBy('id', 'DESC')->paginate(12));
         // return $this->sendResponse(new ProductCollection( Product::paginate(3)), 'Products retrieved successfully.');
     }
 
@@ -46,6 +46,8 @@ class ProductController extends BaseController
     public function store(Request $request)
     {
         $input = $request->all();
+        // var_dump(Auth::user());
+        die();
         $input['user_id']=Auth::user()->id;
         $input['authorized'] = false;
         $input['reference'] =  uniqid('REF-'.str_random(3));
@@ -99,7 +101,7 @@ class ProductController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Product $product)
+    public function update(Request $request, Product $produc)
     {
         $input = $request->all();
         $validator = Validator::make($input, [
@@ -111,18 +113,12 @@ class ProductController extends BaseController
            
         ]);
 
-
         if($validator->fails()){
             return $this->sendError('Validation Error.', $validator->errors());       
         }
 
-
-        $product->name = $input['name'];
-        $product->price = $input['price'];
-        $product->reference = $input['reference'];
-        $product->image = $input['image'];
-        $product->quantity = $input['quantity'];
-
+        $product = Product::find($input['id']);
+        $product->fill($input);
         $product->save();
         return $this->sendResponse($product->toArray(), 'Product updated successfully.');
     }
@@ -137,7 +133,6 @@ class ProductController extends BaseController
     public function destroy(Product $product)
     {
         $product->delete();
-
         return $this->sendResponse($product->toArray(), 'Product deleted successfully.');
     }
 }

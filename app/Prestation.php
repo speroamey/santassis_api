@@ -8,7 +8,7 @@ class Prestation extends Model
 {
     //
     protected $fillable = [
-        'name', 'description', 'price','user_id'
+        'name', 'description', 'price','created_by'
     ];
 
     public function user()

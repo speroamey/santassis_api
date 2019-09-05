@@ -25,7 +25,7 @@ class LineCommand extends Migration
             $table->foreign('command_id')->references('id')->on('commands');
 
             $table->string('quantity');
-            $table->string('unit_price')->nullable();
+            $table->string('price')->nullable();
             $table->string('tva_price')->nullable();
             $table->string('description')->nullable();
             $table->string('state')->nullable();

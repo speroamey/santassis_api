@@ -18,32 +18,33 @@ Route::post('register','Api\Auth\RegisterController@register');
 Route::post('login','Api\Auth\LoginController@login');
 Route::post('refresh','Api\Auth\LoginController@refresh');
 Route::get('signup/activate/{token}', 'Api\Auth\LoginController@signupActivate');
-Route::get('storage', function(){
-    echo 'toto';
-    return "hello";
-});
 Route::post('upload_image', 'Api\NewsController@imageUpload');
+Route::resource('products', 'Api\ProductController');
+Route::get('all_testifies', 'Api\TestifyController@all');
+Route::get('all_prestations', 'Api\PrestationController@all');
+Route::get('all_news', 'Api\NewsController@all');
+Route::get('last_news', 'Api\NewsController@lastNews');
+Route::get('news/{id}', 'Api\NewsController@show');
+Route::post('messages', 'Api\Auth\LoginController@customerSendMessage');
+Route::post('create-pass-token', 'Api\Auth\PasswordResetController@create');
+Route::get('find/{token}', 'Api\Auth\PasswordResetController@find');
+Route::post('reset', 'Api\Auth\PasswordResetController@reset');
+
 Route::middleware('auth:api')->group( function () {
     // return $request->user();
-    Route::post('logout','Api\Auth\LoginController@logout');
-   
-    Route::get('/products', 'Api\ProductController@index');
-    Route::resource('products', 'Api\ProductController');
+    Route::get('user','Api\Auth\LoginController@user');
+    Route::put('product-update-state/{id}','Api\UserProductController@updateProductState');
+    Route::resource('users','Api\Auth\LoginController');
+    Route::put('user-avatar','Api\Auth\LoginController@UpdateUserAvatar');
+    Route::put('user','Api\Auth\LoginController@UpdateUser');
+    Route::get('disconnect','Api\Auth\LoginController@disconnect');
+    Route::get('logout','Api\Auth\LoginController@logout');
+    Route::get('command-lines-commands/{id}', 'Api\LineCommandController@showCommandLineCommand');
+    Route::resource('user-products', 'Api\UserProductController');
     Route::resource('commands', 'Api\CommandController');
     Route::resource('prestations', 'Api\PrestationController');
     Route::resource('news', 'Api\NewsController');
     Route::resource('advertise', 'Api\AdvertiseController');
     Route::resource('testifies', 'Api\TestifyController');
-    // dd('salut');
-});
-
-
-
-Route::group([    
-    'namespace' => 'Api\Auth',      
-    'prefix' => 'password'
-], function () {    
-    Route::post('create', 'PasswordResetController@create');
-    Route::get('find/{token}', 'PasswordResetController@find');
-    Route::post('reset', 'PasswordResetController@reset');
+    Route::get('all-testifies','Api\TestifyController@all');
 });

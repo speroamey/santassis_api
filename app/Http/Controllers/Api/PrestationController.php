@@ -30,6 +30,12 @@ class PrestationController extends BaseController
         return $this->sendResponse(new PrestationCollection( Prestation::paginate(3)), 'Prestations retrieved successfully.');
     }
 
+    public function all()
+    {
+        return new PrestationCollection( Prestation::paginate(3));
+        return $this->sendResponse(new PrestationCollection( Prestation::paginate(3)), 'Prestations retrieved successfully.');
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -40,14 +46,14 @@ class PrestationController extends BaseController
     {
         
         $input = $request->all();
-        $input['user_id']=Auth::user()->id;
+        $input['created_by']=Auth::user()->id;
         $input['authorized'] = false;
 
         $validator = Validator::make($input, [
             'name' => 'required',
             'price' => 'required',
             'description' => 'required',
-            'user_id'=>'required'
+            'created_by'=>'required'
         ]);
 
 
@@ -74,7 +80,6 @@ class PrestationController extends BaseController
             'name' => 'required',
             'price' => 'required',
             'description' => 'required',
-            'user_id'=>'required'
         ]);
 
 

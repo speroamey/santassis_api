@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Storage;
 
 use App\News;
 use App\Http\Resources\News as NewsResource;
-use App\Http\Resources\NewCollection;
+use App\Http\Resources\NewsCollection;
 use App\Http\Controllers\Api\BaseController as BaseController;
 
 class NewsController extends BaseController
@@ -41,8 +41,37 @@ class NewsController extends BaseController
 
     public function index()
     {
-        return new NewCollection( News::paginate(10));
-        return $this->sendResponse(new NewCollection( News::paginate(3)), 'News retrieved successfully.');
+        return new NewsCollection( News::orderBy('id', 'DESC')->paginate(10));
+        // return $this->sendResponse(new NewsCollection( News::paginate(3)), 'News retrieved successfully.');
+    }
+
+    public function all()
+    {
+        return new NewsCollection( News::orderBy('id', 'DESC')->paginate(10));
+        // return $this->sendResponse(new NewsCollection( News::paginate(3)), 'News retrieved successfully.');
+    }
+
+    public function storeImage($file){
+        $mime_type= mime_content_type($file);
+        $file = str_replace(['data:image/jpeg;base64,','data:image/jpg;base64,','data:image/png;base64,'], '', $file);
+        $file = str_replace(' ', '', $file);
+        $file = base64_decode($file);
+        
+        $safeName="";
+        $folderName = '/uploads/news/';
+        switch($mime_type){
+            case "image/png":
+                $safeName = "news-".time().".png";
+                break;
+            case "image/jpeg":
+                $safeName = "news-".time().".jpeg";
+                break;
+            case "image/jpg":
+                $safeName = "news-".time().".jpg";
+                break;
+        }
+        $success = Storage::disk('public')->put( 'news/'.$safeName, $file);
+        if($success) return $safeName;
     }
 
     /**
@@ -53,10 +82,10 @@ class NewsController extends BaseController
      */
     public function store(Request $request)
     {
-        
         $input = $request->all();
         $input['user_id']=Auth::user()->id;
-      
+        $file = $request['image_cover'];
+        $img_name = $this->storeImage($file);
 
         $validator = Validator::make($input, [
             'title' => 'required',
@@ -68,7 +97,7 @@ class NewsController extends BaseController
         if($validator->fails()){
             return $this->sendError('Validation Error.', $validator->errors());       
         }
-
+        $input['image_cover'] = $img_name;
         $news = News::create($input);
         return $this->sendResponse($news->toArray(), 'News created successfully.');
     }
@@ -87,7 +116,6 @@ class NewsController extends BaseController
         $validator = Validator::make($input, [
             'title' => 'required',
             'content' => 'required',
-            'user_id'=>'required'
         ]);
 
 
@@ -115,5 +143,12 @@ class NewsController extends BaseController
         $news->delete();
 
         return $this->sendResponse($news->toArray(), 'News deleted successfully.');
+    }
+
+
+    public function lastNews()
+    {
+        return new NewsCollection( News::orderBy('id', 'DESC')->paginate(3));
+        // return $this->sendResponse(new NewsCollection( News::paginate(3)), 'News retrieved successfully.');
     }
 }

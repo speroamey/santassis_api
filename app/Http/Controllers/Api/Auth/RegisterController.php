@@ -20,12 +20,19 @@ class registerController extends Controller
     }
 
     public function register(Request $request){
-        $this->validate($request,[
+        $rules = [
             'name'=>'required',
             'phone'=>'required|unique:users,phone',
             'password'=>'required|min:6|confirmed',
             'email'=>'required|email|unique:users,email'
-        ]);
+        ];
+        $errorMessages = [
+            'required' => 'le champ :attribute est requis.',
+            'unique' => ' :attribute existe déja.',
+            'min' => 'le champ :attribute doit contenir au moins 6 caracctères',
+            'confirmed' => 'le champ :attribute ne correspond pas.'
+        ];
+        $this->validate($request,$rules, $errorMessages);
         
         $user= User::create([
             'name'=> request('name'),

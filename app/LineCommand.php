@@ -7,10 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class LineCommand extends Model
 {
     //
+    public $table = 'line_command';
     protected $fillable = [
-        'state','description','command_id','product_id', 'quantity','user_id','unit_price','tva_price'
+        'state','description','command_id','product_id', 'quantity','user_id','price','tva_price'
     ];
-
 
     public function user()
     {

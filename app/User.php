@@ -6,6 +6,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Passport\HasApiTokens;
+use Illuminate\Support\Facades\Storage;
 
 use App\Product;
 
@@ -20,6 +21,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name', 'email', 'role','password','phone','active', 'activation_token',
+        'birthdate','profession','sexe','lastname','firstname','avatar'
     ];
 
     /**
@@ -43,5 +45,10 @@ class User extends Authenticatable
     public function products()
     {
       return $this->hasMany(Product::class);
+    }
+
+    public function getUrlAttribute()
+    {
+      return env('APP_URL').Storage::url('avatar/'.$this->avatar);
     }
 }

@@ -11,14 +11,16 @@ class SignupActivate extends Notification
 {
     use Queueable;
 
+    public $user;
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($user)
     {
         //
+        $this->user = $user;
     }
 
     /**
@@ -45,10 +47,9 @@ class SignupActivate extends Notification
     {
         $url = url('/api/signup/activate/'.$notifiable->activation_token);
         return (new MailMessage)
-                    ->subject('Confirmation de compte')
-                    ->line('Félicitation! votre compte a été bien créé, mais avant,vous devez confirmer votre compte.')
+                    ->subject('Création de compte')
                     ->action('Confirmez', url($url))
-                    ->line('Merci d\'utiliser Santasis!');
+                    ->markdown('mail.welcome.index', ['user' => $this->user]);    
     }
 
     /**

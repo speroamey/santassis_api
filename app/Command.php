@@ -8,17 +8,16 @@ class Command extends Model
 {
     //
     protected $fillable = [
-        'reference','state','description','address_livraison','user_id'
+        'reference','state','description','address_livraison','user_id','ttc_price','total','comissions','zone_livraison','livraison_price'
     ];
-
 
     public function user()
     {
       return $this->belongsTo(User::class);
     }
 
-    public function product()
+    public function lineCommands()
     {
-      return $this->belongsTo(Product::class);
+      return $this->hasMany(LineCommand::class);
     }
 }

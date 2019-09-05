@@ -17,10 +17,9 @@ class LineCommand extends JsonResource
         return [
             'user'=>$this->user,
             'product'=>$this->product,
-            'reference'=>$this->reference,
-            'state'=>$this->state,
+            'quantity'=>$this->quantity,
             'description'=>$this->description,
-            'unit_price'=>$this->unit_price,
+            'unit_price'=>$this->price,
             'tva_price'=>$this->tva_price,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

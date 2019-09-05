@@ -10,7 +10,12 @@ use App\Command;
 use App\Http\Resources\Command as CommandResource;
 use App\Http\Resources\CommandCollection;
 use App\Http\Controllers\Api\BaseController as BaseController;
+use App\Notifications\CommandMessage;
+use App\Notifications\SendMessage;
 
+use App\LineCommand;
+use App\Http\Resources\LineCommand as LineCommandResource;
+use App\Product;
 class CommandController extends BaseController
 {
     //
@@ -31,8 +36,8 @@ class CommandController extends BaseController
 
     public function index()
     {
-        // return new CommandCollection( Command::paginate(3));
-        return $this->sendResponse(new CommandCollection( Command::paginate(3)), 'Commands retrieved successfully.');
+        return new CommandCollection( Command::with('lineCommands')->get()->paginate(12));
+        // return $this->sendResponse(new CommandCollection( Command::paginate(3)), 'Commands retrieved successfully.');
     }
 
     /**
@@ -43,26 +48,42 @@ class CommandController extends BaseController
      */
     public function store(Request $request)
     {
-        
         $input = $request->all();
-        $input['user_id']=Auth::user()->id;
-        $input['state'] = "Commanded";
-        $input['reference'] = "REF-XXX";
+        $cmd['user_id']=Auth::user()->id;
+        $cmd['state'] = "Commanded";
+        $cmd['reference'] =  uniqid('REF-CMD-'.str_random(3));
        
-        $validator = Validator::make($input, [
-            'quantity' => 'required',
+        $validator = Validator::make($cmd, [
             'user_id'=>'required',
-            'product_id'=>'required',
+            'reference'=>'required',
             'state' => 'required'
         ]);
-
+       
 
         if($validator->fails()){
             return $this->sendError('Validation Error.', $validator->errors());       
+        } 
+       
+        $command = Command::create($cmd);
+        foreach ($input as $item){
+            $item['command_id']= $command['id'];
+            $item['user_id']=Auth::user()->id;
+            //Here just get every line_command and pass the current product id 
+            // to fetch the related one one product table by using it's model.
+            //when the that product is retrieved we can now get it's quantity subtract with the line_command
+            //quantity_commanded so we can update product with a new quantity
+            
+
+            //get current product from product's table
+            $product = Product::find($item['id']);
+            $product['quantity'] = $product['quantity'] - $item['quantity_commanded'];
+            $item['product_id'] = $item['id'];
+            $product->save();
+            $lc= LineCommand::create($item);
         }
 
-        $command = Command::create($input);
-        return $this->sendResponse($command->toArray(), 'Command created successfully.');
+       
+        return $this->sendResponse($command->toArray(), 'Command créé avec succès.');
     }
 
 
@@ -77,8 +98,7 @@ class CommandController extends BaseController
     {
         $input = $request->all();
         $validator = Validator::make($input, [
-            'quantity' => 'required',
-            'product_id'=>'required'
+            'id' => 'required',
         ]);
 
 
@@ -87,14 +107,14 @@ class CommandController extends BaseController
         }
 
 
-        $command->name = $input['name'];
-        $command->price = $input['price'];
-        $command->reference = $input['reference'];
-        $command->image = $input['image'];
-        $command->quantity = $input['quantity'];
+       
 
+        $command = Command::find($input['id']);
+        $command->fill($input);
         $command->save();
-        return $this->sendResponse($command->toArray(), 'Command updated successfully.');
+        $recipient = Auth::user();
+        $recipient->notify(new CommandMessage($command));
+        return $this->sendResponse($command->toArray(), 'Commande mis à jour.');
     }
 
 

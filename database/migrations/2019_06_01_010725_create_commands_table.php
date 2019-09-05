@@ -15,8 +15,8 @@ class CreateCommandsTable extends Migration
     {
         Schema::create('commands', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->bigInteger('client_id')->unsigned();
-            $table->foreign('client_id')->references('id')->on('users');
+            $table->bigInteger('user_id')->unsigned();
+            $table->foreign('user_id')->references('id')->on('users');
             $table->string('tva_price')->nullable();
             $table->string('address_livraison')->nullable();
             $table->string('description')->nullable();

@@ -12,5 +12,14 @@
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    View::addExtension('html','php');
+    return view('index');
+});
+
+Route::get('/layout/{slug?}',function($slug){
+    return view('index');
+});
+
+App::missing(function($exception) { 
+    return View('index'); 
 });
