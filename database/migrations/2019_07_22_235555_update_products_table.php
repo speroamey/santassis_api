@@ -16,6 +16,7 @@ class UpdateProductsTable extends Migration
         //
         Schema::table('products', function (Blueprint $table) {
             $table->string('image_ordonnance')->nullable();
+            $table->string('etat')->nullable();
         });
     }
 

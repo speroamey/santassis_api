@@ -11,7 +11,7 @@ class Product extends Model
     //
     protected $fillable = [
         'name', 'reference', 'price','image','image_ordonnance','date_peremption','authorized', 'quantity',
-        'dose','type','user_id','description',
+        'dose','type','etat','user_id','description',
     ];
 
     public function user()

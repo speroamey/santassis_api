@@ -32,6 +32,7 @@ class Product extends JsonResource
             'quantity'=>$this->quantity,
             'dose'=>$this->dose,
             'type'=>$this->type,
+            'etat'=>$this->etat,
             'date_peremption'=>$this->date_peremption,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
